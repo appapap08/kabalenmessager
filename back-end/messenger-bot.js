@@ -1,5 +1,4 @@
-// messenger-bot.js (CommonJS)
-// Full-featured Messenger bot for Kabalen
+// messenger-bot.js (CommonJS) — Full-featured Kabalen Messenger Bot
 // Requires: express, body-parser, node-fetch@2
 // Start: node messenger-bot.js
 
@@ -10,26 +9,26 @@ const app = express();
 
 app.use(bodyParser.json());
 
-// ===== CONFIG (from env) =====
+// CONFIG (via env)
 const PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN || "";
 const VERIFY_TOKEN = process.env.VERIFY_TOKEN || "verify_kabalen";
 const BOT_SECRET = process.env.BOT_SECRET || "kabalen123secret";
-const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:10000";
+const BACKEND_URL = process.env.BACKEND_URL || "https://kabalenmessager.onrender.com";
+const GOOGLE_MAPS_KEY = process.env.GOOGLE_MAPS_KEY || ""; // optional
 const PORT = process.env.PORT || 3000;
 
-// ===== In-memory sessions (replace with Redis in prod) =====
-const sessions = {}; // keyed by psid
+// In-memory session store (simple)
+const sessions = {}; // { psid: { stage, data:{...} } }
 
 function getSession(psid) {
   if (!sessions[psid]) sessions[psid] = { stage: "start", data: {} };
   return sessions[psid];
 }
-
 function clearSession(psid) {
   delete sessions[psid];
 }
 
-// ===== Facebook API helper =====
+// Facebook send helper
 function sendToFacebookAPI(body) {
   return fetch(`https://graph.facebook.com/v16.0/me/messages?access_token=${PAGE_ACCESS_TOKEN}`, {
     method: "POST",
@@ -37,12 +36,11 @@ function sendToFacebookAPI(body) {
     body: JSON.stringify(body)
   }).then(r => r.json());
 }
-
 function sendText(psid, text) {
   return sendToFacebookAPI({ recipient: { id: psid }, message: { text } });
 }
 
-// Generic quick reply helper
+// Service buttons (4 wheels shown but unavailable)
 function sendServiceButtons(psid) {
   const payload = {
     recipient: { id: psid },
@@ -65,14 +63,34 @@ function sendServiceButtons(psid) {
   return sendToFacebookAPI(payload);
 }
 
-// ===== Distance helpers =====
-async function getDistanceKmOSRM(lat1, lon1, lat2, lon2) {
+// Distance helpers
+async function getDistanceKmGoogle(lat1, lng1, lat2, lng2) {
+  if (!GOOGLE_MAPS_KEY) return null;
+  const origin = `${lat1},${lng1}`;
+  const dest = `${lat2},${lng2}`;
+  const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(dest)}&key=${GOOGLE_MAPS_KEY}`;
   try {
-    const url = `http://router.project-osrm.org/route/v1/driving/${lon1},${lat1};${lon2},${lat2}?overview=false`;
+    const r = await fetch(url);
+    const json = await r.json();
+    if (json.routes && json.routes.length && json.routes[0].legs && json.routes[0].legs.length) {
+      const legs = json.routes[0].legs;
+      let meters = 0;
+      for (const leg of legs) meters += (leg.distance && leg.distance.value) || 0;
+      return meters / 1000;
+    }
+  } catch (e) {
+    console.log("Google Directions error:", e && e.message);
+  }
+  return null;
+}
+
+async function getDistanceKmOSRM(lat1, lng1, lat2, lng2) {
+  try {
+    const url = `http://router.project-osrm.org/route/v1/driving/${lng1},${lat1};${lng2},${lat2}?overview=false`;
     const r = await fetch(url);
     const json = await r.json();
     if (json && json.routes && json.routes[0] && typeof json.routes[0].distance === "number") {
-      return json.routes[0].distance / 1000; // meters -> km
+      return json.routes[0].distance / 1000;
     }
   } catch (e) {
     console.log("OSRM error:", e && e.message);
@@ -85,36 +103,44 @@ function haversineKm(lat1, lon1, lat2, lon2) {
   const R = 6371;
   const dLat = toRad(lat2 - lat1);
   const dLon = toRad(lon2 - lon1);
-  const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)**2;
-  const c = 2*Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c;
 }
 
-// ===== Fee calculation (your rules) =====
+// Fare calculation rules
 function calculateFee(service, km) {
   if (typeof km !== "number" || isNaN(km)) return null;
 
-  // FOOD + PABILI: 5 km minimum ₱150, then ₱10 per km
+  // Food + Pabili: 5 km min ₱150, +₱10/km thereafter
   if (service === "SERVICE_FOOD" || service === "SERVICE_PABILI") {
     if (km <= 5) return 150;
     return 150 + Math.ceil(km - 5) * 10;
   }
 
-  // 3 WHEELS TAXI: 5 km minimum ₱100, then ₱15 per km
+  // 3 wheels: 5 km min ₱100, +₱15/km thereafter
   if (service === "SERVICE_3WHEELS") {
     if (km <= 5) return 100;
     return 100 + Math.ceil(km - 5) * 15;
   }
 
-  // 4 WHEELS TAXI - unavailable
-  if (service === "SERVICE_4WHEELS") {
-    return null;
-  }
+  // 4 wheels: unavailable
+  if (service === "SERVICE_4WHEELS") return null;
 
   return null;
 }
 
-// ===== Webhook verification (GET) =====
+function labelForService(payload) {
+  switch (payload) {
+    case "SERVICE_FOOD": return "Food";
+    case "SERVICE_PABILI": return "Pabili";
+    case "SERVICE_3WHEELS": return "3 Wheels Taxi";
+    case "SERVICE_4WHEELS": return "4 Wheels Taxi";
+    default: return "Service";
+  }
+}
+
+// Webhook verification (GET)
 app.get("/webhook", (req, res) => {
   const mode = req.query["hub.mode"];
   const token = req.query["hub.verify_token"];
@@ -126,7 +152,7 @@ app.get("/webhook", (req, res) => {
   return res.sendStatus(403);
 });
 
-// ===== Receive messages & postbacks (POST) =====
+// Main webhook (POST)
 app.post("/webhook", async (req, res) => {
   const body = req.body;
   if (body.object !== "page") return res.sendStatus(404);
@@ -139,21 +165,23 @@ app.post("/webhook", async (req, res) => {
         if (!psid) continue;
         const session = getSession(psid);
 
-        // POSTBACK handling (buttons)
+        // POSTBACKS
         if (event.postback && event.postback.payload) {
           const payload = event.postback.payload;
-          // service selection
-          if (["SERVICE_FOOD","SERVICE_PABILI","SERVICE_3WHEELS","SERVICE_4WHEELS"].includes(payload)) {
+
+          // Service selection
+          if (["SERVICE_FOOD", "SERVICE_PABILI", "SERVICE_3WHEELS", "SERVICE_4WHEELS"].includes(payload)) {
             if (payload === "SERVICE_4WHEELS") {
               await sendText(psid, "🚗 4 Wheels Taxi is currently unavailable. Please choose another service.");
               continue;
             }
             session.data.service = payload;
             session.stage = "awaiting_pickup";
-            await sendText(psid, "Great — send your *pickup location* 📍\nTap the + (plus) icon → Location → Send Location pin.");
+            await sendText(psid, "Great — send your pickup location 📍\nTap the + icon → Location → Send.");
             continue;
           }
 
+          // Confirm / Cancel
           if (payload === "CONFIRM_ORDER") {
             await finalizeOrder(psid);
             continue;
@@ -165,9 +193,9 @@ app.post("/webhook", async (req, res) => {
           }
         }
 
-        // MESSAGE handling
+        // MESSAGE EVENTS
         if (event.message) {
-          // if user sent location attachment
+          // If message has attachments (location)
           if (event.message.attachments && event.message.attachments.length) {
             const att = event.message.attachments[0];
             if (att.type === "location" && att.payload && att.payload.coordinates) {
@@ -177,120 +205,115 @@ app.post("/webhook", async (req, res) => {
               if (session.stage === "awaiting_pickup" || !session.data.pickup) {
                 session.data.pickup = { lat, lng };
                 session.stage = "awaiting_dropoff";
-                await sendText(psid, "Pickup saved ✅. Now send the *dropoff location* (send a location pin).");
+                await sendText(psid, "Pickup saved ✅. Now send the dropoff location (location pin).");
                 continue;
               } else if (session.stage === "awaiting_dropoff" || !session.data.dropoff) {
                 session.data.dropoff = { lat, lng };
-                // compute distance & fee
+                // compute distance & show summary
                 await computeDistanceAndShowSummary(psid);
                 continue;
               }
             } else {
-              // other attachments (image) - optional handling
-              await sendText(psid, "Attachment received. If you're ordering, please send pickup & dropoff locations.");
+              // Other attachments
+              await sendText(psid, "Attachment received. If you're ordering, please send pickup & dropoff location pins.");
               continue;
             }
           }
 
-          // text messages
-          const raw = (event.message.text || "").trim();
-          const text = raw.toLowerCase();
+          // TEXT messages
+          if (event.message.text) {
+            const text = event.message.text.trim();
+            const lower = text.toLowerCase();
 
-          // initial triggers
-          if (text === "order") {
-            clearSession(psid);
-            session.stage = "choosing_service";
-            await sendServiceButtons(psid);
-            continue;
-          }
-          if (text === "help") {
-            await sendText(psid, "Type 'Order' to begin. You can send location pins for pickup & dropoff.");
-            continue;
-          }
-          if (text === "my orders") {
-            // fetch recent orders from BACKEND if you implement endpoint /orders/messenger/:psid
-            try {
-              const r = await fetch(`${BACKEND_URL}/orders/messenger/${psid}`, { headers: { "Content-Type": "application/json" } });
-              const json = await r.json();
-              if (!Array.isArray(json) || json.length === 0) {
-                await sendText(psid, "You have no recent orders.");
-              } else {
-                // show up to 5
-                const elements = json.slice(0,5).map(o => ({
-                  title: `${o.service_type || "Order"} • ₱${o.fee} • ${o.status}`,
-                  subtitle: `From: ${o.pickup || "—"}\nTo: ${o.dropoff || "—"}\nID: ${o.id}`,
-                }));
-                await sendToFacebookAPI({ recipient: { id: psid }, message: { attachment: { type: "template", payload: { template_type: "generic", elements } } } });
-              }
-            } catch (e) {
-              console.log("fetch orders error", e && e.message);
-              await sendText(psid, "Couldn't fetch orders.");
+            console.log(`[WEBHOOK] text from ${psid}:`, lower);
+
+            // start ordering
+            if (lower === "order") {
+              clearSession(psid);
+              const s = getSession(psid);
+              s.stage = "choosing_service";
+              await sendServiceButtons(psid);
+              continue;
             }
-            continue;
-          }
 
-          // Flow: typed pickup/dropoff (geocoding not included) - if user types anything during pick/drop flow
-          if (session.stage === "awaiting_pickup" && raw) {
-            // Ask user to send location pin for better accuracy
-            session.data.pickup = { text: raw };
-            session.stage = "awaiting_dropoff";
-            await sendText(psid, "Pickup noted. It's better to send a location pin for precise distance — but send dropoff now (or send a location pin).");
-            continue;
-          }
-          if (session.stage === "awaiting_dropoff" && raw) {
-            session.data.dropoff = { text: raw };
-            // We don't have coords — ask user to send location pins for better accuracy; do best-effort
-            await sendText(psid, "Got dropoff. To compute distance accurately, please send location pins. If you want to continue with text addresses, type 'compute'.");
-            session.stage = "awaiting_compute_confirm";
-            continue;
-          }
-          if (session.stage === "awaiting_compute_confirm" && (text === "compute" || text === "yes")) {
-            // fallback: can't compute without coords — ask for pins
-            await sendText(psid, "Sorry — I need location pins to compute distance. Please send pickup & dropoff location pins.");
-            session.stage = "awaiting_pickup";
-            continue;
-          }
+            if (lower === "help") {
+              await sendText(psid, "Type 'Order' to start. Send location pins for pickup & dropoff.");
+              continue;
+            }
 
-          // After computed summary: collect notes (finalize)
-          if (session.stage === "awaiting_notes" && raw) {
-            session.data.notes = raw === "-" ? "" : raw;
-            // finalize: create order
-            await createOrderFromSession(psid);
-            continue;
-          }
+            // If waiting for pickup but user typed an address (text)
+            if (session.stage === "awaiting_pickup" && text) {
+              session.data.pickup = { text }; // best-effort (no coords)
+              session.stage = "awaiting_dropoff";
+              await sendText(psid, "Pickup noted. For accurate pricing please send location pins. Now send dropoff (or a pin).");
+              continue;
+            }
 
-          // fallback
-          await sendText(psid, "Type 'Order' to start. Type 'Help' for assistance.");
+            // If waiting for dropoff but user typed an address (text)
+            if (session.stage === "awaiting_dropoff" && text) {
+              session.data.dropoff = { text };
+              session.stage = "awaiting_compute_confirm";
+              await sendText(psid, "Dropoff noted. To compute accurate distance please send location pins. If you want to continue with text addresses type 'compute'.");
+              continue;
+            }
+
+            if (session.stage === "awaiting_compute_confirm" && (lower === "compute" || lower === "yes")) {
+              await sendText(psid, "Sorry — I need location pins to compute distance accurately. Please send pickup & dropoff location pins.");
+              session.stage = "awaiting_pickup";
+              continue;
+            }
+
+            // If waiting for notes before finalize
+            if (session.stage === "awaiting_notes" && text) {
+              session.data.notes = text === "-" ? "" : text;
+              // create order
+              await createOrderFromSession(psid);
+              continue;
+            }
+
+            // default fallback
+            await sendText(psid, "Type 'Order' to start placing a delivery request.");
+            continue;
+          } // end if event.message.text
         } // end event.message
       } // end messaging loop
     } // end entry loop
+
     res.status(200).send("EVENT_RECEIVED");
   } catch (err) {
-    console.error("webhook error:", err && err.message);
+    console.error("Webhook processing error:", err && err.message);
     res.sendStatus(500);
   }
 });
 
-// ===== compute distance & show order summary =====
+// Compute distance, fee, and show summary with Confirm/Cancel
 async function computeDistanceAndShowSummary(psid) {
   const session = getSession(psid);
   const d = session.data;
   if (!d.pickup || !d.dropoff) {
-    await sendText(psid, "Missing pickup or dropoff.");
-    return;
-  }
-
-  // prefer coords - if either lacks coords, fail gracefully
-  if (!d.pickup.lat || !d.dropoff.lat) {
-    await sendText(psid, "Please send location pins for both pickup and dropoff so I can compute the distance.");
+    await sendText(psid, "Missing pickup or dropoff. Please send both location pins.");
     session.stage = "awaiting_pickup";
     return;
   }
 
-  // Try OSRM first
-  let km = await getDistanceKmOSRM(d.pickup.lat, d.pickup.lng, d.dropoff.lat, d.dropoff.lng);
+  // both must have coordinates for distance calc
+  if (!d.pickup.lat || !d.dropoff.lat) {
+    await sendText(psid, "Please send pickup & dropoff *location pins* for accurate distance & fee calculation.");
+    session.stage = "awaiting_pickup";
+    return;
+  }
+
+  // Try Google Directions if key provided
+  let km = null;
+  if (GOOGLE_MAPS_KEY) {
+    km = await getDistanceKmGoogle(d.pickup.lat, d.pickup.lng, d.dropoff.lat, d.dropoff.lng);
+  }
   if (km === null) {
-    // fallback to haversine
+    // Try OSRM
+    km = await getDistanceKmOSRM(d.pickup.lat, d.pickup.lng, d.dropoff.lat, d.dropoff.lng);
+  }
+  if (km === null) {
+    // fallback haversine
     km = haversineKm(d.pickup.lat, d.pickup.lng, d.dropoff.lat, d.dropoff.lng);
   }
 
@@ -298,13 +321,12 @@ async function computeDistanceAndShowSummary(psid) {
   d.fee = calculateFee(d.service, d.distance);
 
   if (d.fee === null) {
-    await sendText(psid, "Selected service is not available. Please choose another service.");
+    await sendText(psid, "Selected service is currently unavailable. Please choose another service.");
     clearSession(psid);
     return;
   }
 
-  // send summary with confirm/cancel buttons
-  const summaryText = `Service: ${labelForService(d.service)}\nPickup: ${d.pickup.text || "Location pin"}\nDropoff: ${d.dropoff.text || "Location pin"}\nDistance: ${d.distance} km\nFee: ₱${d.fee}\nItems/Notes: ${d.items || "(none)"}`;
+  const summaryText = `Service: ${labelForService(d.service)}\nDistance: ${d.distance} km\nFee: ₱${d.fee}\nNotes: ${d.notes || "(none)"}`;
 
   await sendToFacebookAPI({
     recipient: { id: psid },
@@ -329,18 +351,7 @@ async function computeDistanceAndShowSummary(psid) {
   session.stage = "awaiting_confirmation";
 }
 
-// small label helper
-function labelForService(payload) {
-  switch (payload) {
-    case "SERVICE_FOOD": return "Food";
-    case "SERVICE_PABILI": return "Pabili";
-    case "SERVICE_3WHEELS": return "3 Wheels Taxi";
-    case "SERVICE_4WHEELS": return "4 Wheels Taxi";
-    default: return "Service";
-  }
-}
-
-// ===== create order by calling backend =====
+// Create order on backend
 async function createOrderFromSession(psid) {
   const session = getSession(psid);
   const d = session.data;
@@ -371,34 +382,33 @@ async function createOrderFromSession(psid) {
     });
     const json = await resp.json();
     if (!resp.ok) {
-      console.log("backend order error:", json);
+      console.log("Backend order error:", json);
       await sendText(psid, "Sorry — failed to create your order. Try again later.");
       return;
     }
-    await sendText(psid, `Order placed! Order ID: ${json.order && json.order.id ? json.order.id : "(from backend)"}. We'll notify you here.`);
+    await sendText(psid, `Order placed! Order ID: ${json.order && json.order.id ? json.order.id : "(created)"} — We'll notify you here.`);
     clearSession(psid);
   } catch (e) {
-    console.log("create order error:", e && e.message);
+    console.log("createOrder error:", e && e.message);
     await sendText(psid, "Network error while creating order. Try again later.");
   }
 }
 
-// Called when user presses CONFIRM_ORDER postback
+// Called when user presses confirm — ask for notes then create
 async function finalizeOrder(psid) {
   const session = getSession(psid);
   if (!session || !session.data) {
     await sendText(psid, "No active order to confirm.");
     return;
   }
-  // ask for notes before sending? We included notes step earlier; if none, proceed
   session.stage = "awaiting_notes";
   await sendText(psid, "Type any notes or items (e.g., '2pc Chickenjoy') or type '-' to skip.");
 }
 
-// ===== Endpoint used by backend to push messages to customer =====
+// Endpoint for backend to push notifications to messenger
 app.post("/send-to-messenger", async (req, res) => {
   const secret = req.headers["x-bot-secret"];
-  if (!secret || secret !== BOT_SECRET) return res.status(403).json({ error: "Invalid secret" });
+  if (!secret || secret !== BOT_SECRET) return res.status(403).json({ error: "Invalid bot secret" });
 
   const { psid, text } = req.body;
   if (!psid || !text) return res.status(400).json({ error: "psid & text required" });
@@ -412,17 +422,14 @@ app.post("/send-to-messenger", async (req, res) => {
   }
 });
 
-// ===== small helper to accept natural-language "start" flow =====
-async function handleStartIfNeeded(psid) {
-  const session = getSession(psid);
-  if (session.stage === "start") {
-    await sendText(psid, "Hi! Type 'Order' to start or tap below.");
-    await sendServiceButtons(psid);
-    session.stage = "choosing_service";
-  }
-}
+// Optional: endpoint used by bot to fetch orders for a psid (if you add on backend)
+app.get("/orders/messenger/:psid", async (req, res) => {
+  // This endpoint is a convenience if you want the bot to fetch order history from backend.
+  // If your backend implements it, you can uncomment and proxy here. For now return 404.
+  return res.status(404).json({ message: "Not implemented on bot; implement on backend at /orders/messenger/:psid" });
+});
 
-// ===== Start server =====
+// Start server
 app.listen(PORT, () => {
   console.log(`Messenger bot running on port ${PORT}`);
 });
