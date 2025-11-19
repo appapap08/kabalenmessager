@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kabalen Rider App</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="rider.css">
+
+<script src="rider.js" defer></script>
+
+<style>
+    .chat-box {
+        height: 350px;
+        overflow-y: auto;
+        border: 1px solid #ccc;
+        padding: 8px;
+        border-radius: 6px;
+        margin-bottom: 10px;
+        background: white;
+    }
+
+    .chat-line {
+        padding: 6px;
+        margin: 5px 0;
+        border-radius: 6px;
+        background: #e6e6e6;
+    }
+
+    .chat-input {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+
+    .dot {
+        height: 12px;
+        width: 12px;
+        background-color: red;
+        border-radius: 50%;
+        display: none;
+        margin-left: 6px;
+        vertical-align: middle;
+    }
+</style>
+
+</head>
+<body>
+
+<audio id="notifySound" src="kabalen_notif.wav" preload="auto"></audio>
+
+<header class="header">
+    <h1>KABALEN RIDER</h1>
+</header>
+
+<main class="content">
+
+<!-- ========================= -->
+<!--        LOGIN PAGE         -->
+<!-- ========================= -->
+<section id="loginScreen">
+    <h2>Rider Login</h2>
+
+    <input type="text" id="loginUsername" placeholder="Username">
+    <input type="password" id="loginPassword" placeholder="Password">
+
+    <button class="btn" onclick="riderLogin()">Login</button>
+
+    <div id="loginLoading" class="loading" style="display:none;">
+        Logging in... please wait
+    </div>
+</section>
+
+
+<!-- ========================= -->
+<!--       DASHBOARD PAGE      -->
+<!-- ========================= -->
+<section id="dashboardScreen" style="display:none;">
+    <h2>Welcome, <span id="riderName"></span></h2>
+
+    <!-- ⭐ JOIN QUEUE BUTTONS ⭐ -->
+    <button onclick="joinQueue('food')" class="btn">Join Food Rider Queue</button>
+    <button onclick="joinQueue('wheels3')" class="btn">Join 3-Wheels Taxi Queue</button>
+    <button onclick="joinQueue('wheels4')" class="btn">Join 4-Wheels Taxi Queue</button>
+
+    <p class="balance">Balance: ₱<span id="riderBalance">0</span></p>
+
+    <button class="btn" onclick="loadAvailableOrders()">Available Orders</button>
+
+    <!-- ⭐ UPDATED BUTTON WITH RED DOT ⭐ -->
+    <button id="myJobsBtn" class="btn" onclick="loadMyJobs()">
+        My Jobs <span id="chatDot" class="dot"></span>
+    </button>
+
+    <button class="btn logout" onclick="logoutRider()">Logout</button>
+
+    <!-- ⭐ QUEUE CARD ⭐ -->
+    <div id="queueCard" class="queue-card" style="display:none;">
+        <h3 id="queueTitle">Your Queue</h3>
+
+        <div id="queuePreview"></div>
+        <p id="queueMore" style="color:#666; margin-top:8px;"></p>
+        <p id="queuePosition" style="font-weight:700; margin-top:6px;"></p>
+
+        <div id="queueActions" style="margin-top:10px;">
+            <button class="btn" onclick="leaveQueue()">Leave Queue</button>
+            <button class="btn" onclick="passQueue()" style="background:#f39c12; margin-left:8px;">Pass</button>
+        </div>
+    </div>
+
+    <div id="ordersList"></div>
+</section>
+
+<!-- ========================= -->
+<!--      ACCEPT ORDER PAGE    -->
+<!-- ========================= -->
+<section id="acceptScreen" style="display:none;">
+    <h2>Order Details</h2>
+    <div id="acceptDetails"></div>
+    <button class="btn" onclick="acceptThisOrder()">Accept This Order</button>
+    <p class="switch" onclick="backToDashboard()">Back</p>
+</section>
+
+
+<!-- ========================= -->
+<!--     UPLOAD PROOF PAGE     -->
+<!-- ========================= -->
+<section id="uploadScreen" style="display:none;">
+    <h2>Upload Proof</h2>
+
+    <select id="uploadType">
+        <option value="pickup">Pickup Proof</option>
+        <option value="dropoff">Drop-off Proof</option>
+    </select>
+
+    <input type="file" id="uploadImage">
+
+    <button class="btn" onclick="uploadProof()">Upload</button>
+
+    <p class="switch" onclick="backToDashboard()">Back</p>
+</section>
+
+
+</main>
+
+<!-- ========================= -->
+<!--   GLOBAL ASSIGN POPUP     -->
+<!-- ========================= -->
+<div id="orderPopup" class="order-popup" style="display:none;">
+  <div class="order-popup-card">
+    <h3 id="orderPopupTitle">Order for you</h3>
+    <p id="orderPopupDetails"></p>
+    <p id="orderPopupTimer" style="font-weight:700; color:#ff5a00;"></p>
+
+    <div style="display:flex; gap:10px; margin-top:10px;">
+      <button class="btn" onclick="acceptAssignedOrder()">Accept</button>
+      <button class="btn" onclick="passAssignedOrder()" style="background:#f39c12;">Pass</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

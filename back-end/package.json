@@ -1,0 +1,21 @@
+{
+  "name": "kabalen-system",
+  "version": "1.0.0",
+  "description": "Kabalen backend + messenger bot",
+  "main": "kabalen.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node kabalen.js",
+    "start:bot": "node messenger-bot.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "1.4.5-lts.1",
+    "node-fetch": "^2.7.0",
+    "fs": "0.0.1-security",
+    "path": "^0.12.7"
+  }
+}

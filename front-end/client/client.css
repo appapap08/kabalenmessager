@@ -1,0 +1,99 @@
+/* client.css - Kabalen Client design (match screenshot) */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+:root{
+  --brand:#ff7a00;    /* bright orange */
+  --brand-dark:#ff8000;
+  --muted:#f6a04a;
+  --card-bg:#ffffff;
+  --danger:#c95b5b;
+  --shadow: 0 12px 24px rgba(0,0,0,0.18);
+}
+
+*{box-sizing:border-box}
+html,body{
+  height:100%;
+  margin:0;
+  font-family: 'Poppins', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  background: linear-gradient(180deg, var(--brand) 0%, #ff8c1a 100%);
+  color:#333;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+
+/* page header */
+header {
+  text-align:center;
+  padding:28px 16px 6px;
+}
+header h1{
+  margin:0;
+  color:#fff;
+  font-size:44px;
+  text-shadow:0 2px 0 rgba(0,0,0,0.08);
+  letter-spacing:1px;
+}
+
+/* centered card */
+.main-card {
+  max-width:720px;
+  margin:24px auto;
+  padding:36px 34px;
+  background:var(--card-bg);
+  border-radius:14px;
+  box-shadow: var(--shadow);
+  text-align:center;
+}
+
+/* welcome */
+.main-card h2{
+  margin:0 0 18px;
+  color:var(--brand);
+  font-size:28px;
+  font-weight:700;
+}
+
+/* button list */
+.btn-list {
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+  margin-top:6px;
+}
+
+.btn {
+  display:inline-block;
+  border:0;
+  padding:16px 20px;
+  font-weight:600;
+  font-size:18px;
+  border-radius:10px;
+  cursor:pointer;
+  transition: transform .08s ease, box-shadow .08s ease;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+}
+
+.btn-primary {
+  background:var(--brand);
+  color:#fff;
+}
+
+.btn-primary:hover { transform: translateY(-2px); }
+
+.btn-secondary {
+  background: #ff9a3b;
+  color:#fff;
+}
+
+.btn-danger {
+  background: var(--danger);
+  color:#fff;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.06);
+}
+
+/* small responsive tweaks */
+@media (max-width:480px){
+  header h1 { font-size:32px; }
+  .main-card { margin:18px; padding:22px; }
+  .btn { font-size:16px; padding:14px; }
+}

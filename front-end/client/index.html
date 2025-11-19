@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Kabalen Client App</title>
+
+<!-- GOOGLE FONT -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- LEAFLET MAP CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+<!-- APP CSS -->
+<link rel="stylesheet" href="common.css">
+<link rel="stylesheet" href="client.css">
+
+<!-- LEAFLET JS -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<!-- CLIENT JS -->
+<script src="client.js" defer></script>
+
+</head>
+<body>
+
+<header class="header">
+    <h1>KABALEN CLIENT</h1>
+</header>
+
+<main class="content">
+
+<!-- LOGIN -->
+<section id="loginScreen">
+    <h2>Login</h2>
+    <input type="text" id="loginUsername" placeholder="Username">
+    <input type="password" id="loginPassword" placeholder="Password">
+    <button class="btn" onclick="clientLogin()">Login</button>
+    <div id="loginLoading" class="loading" style="display:none;">Logging in... Please wait</div>
+    <p class="switch" onclick="showRegister()">Create Account</p>
+</section>
+<!-- chat box -->
+<section id="clientChatScreen" style="display:none;">
+    <h2>Chat with Rider</h2>
+
+    <div id="clientChatMessages" class="chat-box"></div>
+
+    <div class="chat-input">
+        <input id="clientChatInput" type="text" placeholder="Type message…">
+        <button onclick="clientSendChat()">Send</button>
+    </div>
+
+    <button class="btn" onclick="clientCloseChat()">Close</button>
+</section>
+
+<!-- REGISTER -->
+<section id="registerScreen" style="display:none;">
+    <h2>Create Account</h2>
+    <input type="text" id="regFullname" placeholder="Full Name" />
+    <input type="text" id="regAddress" placeholder="Address" />
+    <input type="text" id="regPhone" placeholder="Phone Number" />
+    <input type="text" id="regUsername" placeholder="Username" />
+    <input type="password" id="regPassword" placeholder="Password" />
+    <label>Valid ID</label>
+    <input type="file" id="regValidId" />
+    <label>Selfie</label>
+    <input type="file" id="regSelfie" />
+    <button class="btn" onclick="registerClient()">Register</button>
+    <p class="switch" onclick="showLogin()">Back to Login</p>
+</section>
+
+<!-- DASHBOARD -->
+<section id="dashboardScreen" style="display:none;">
+    <h2>Welcome, <span id="clientName"></span></h2>
+    <button class="btn" onclick="newOrder()">Create New Order</button>
+    <button class="btn" onclick="loadMyOrders()">My Orders</button>
+    <button class="btn" onclick="openProfile()">Profile</button>
+    <button class="btn logout" onclick="logoutClient()">Logout</button>
+</section>
+
+<!-- SERVICE SELECT -->
+<section id="serviceSelectScreen" style="display:none;">
+    <h2>Select Service</h2>
+    <button class="btn" onclick="chooseService('food')">🍔 Food Delivery</button>
+    <button class="btn" onclick="chooseService('wheels3')">🛵 3-Wheels (Tricycle)</button>
+    <button class="btn" onclick="chooseService('wheels4')">🚗 4-Wheels (Taxi)</button>
+    <p class="switch" onclick="backToDashboard()">Back</p>
+
+    <!-- chat box -->
+</section>
+<section id="chatScreen" style="display:none;">
+  <h2>Chat with Rider</h2>
+  <div id="chatMessages" class="chat-box"></div>
+
+  <div class="chat-input">
+    <input id="chatInput" type="text" placeholder="Type message...">
+    <button onclick="sendChatMessage()">Send</button>
+  </div>
+
+  <button class="btn" onclick="closeChat()">Close</button>
+</section>
+
+<!-- ORDER (MAP + PICKUP + DROPOFF) -->
+<section id="orderScreen" style="display:none;">
+    <h2>Create New Order</h2>
+
+    <!-- MAP -->
+    <div id="orderMap" style="width:100%; height:300px; border-radius:10px; margin-bottom:12px;"></div>
+
+    <!-- Pickup (Store/Restaurant) -->
+    <label for="orderPickup"><b>Pickup (store / restaurant)</b></label>
+    <input type="text" id="orderPickup" placeholder="Search pickup location (store name or address)" autocomplete="off" />
+    <div id="pickupSuggestions" class="suggestions"></div>
+
+    <!-- Dropoff (Client location) -->
+    <label for="orderDropoff"><b>Drop-off (your location)</b></label>
+    <input type="text" id="orderDropoff" placeholder="Search dropoff location (or use buttons below)" autocomplete="off" />
+    <div id="dropoffSuggestions" class="suggestions"></div>
+
+    <!-- Dropoff helper buttons (adaptive) -->
+    <div class="dropoff-buttons">
+        <button class="btn small" id="useMyLocationBtn">📍 Use My Current Location</button>
+        <button class="btn small" id="useHomeAddressBtn">🏠 Use My Home Address</button>
+    </div>
+
+    <!-- Distance & Fee -->
+    <div class="inline-row">
+        <input type="number" id="orderDistance" placeholder="Distance (km)" readonly>
+        <input type="number" id="orderFee" placeholder="Delivery Fee (₱)" readonly>
+    </div>
+
+    <textarea id="orderNotes" placeholder="Notes / what to buy (optional)" style="width:100%;height:70px;margin-top:10px;"></textarea>
+
+    <button class="btn" onclick="submitOrder()">Submit Order</button>
+    <p class="switch" onclick="backToDashboard()">Cancel</p>
+</section>
+
+<!-- MY ORDERS -->
+<section id="ordersScreen" style="display:none;">
+    <h2>My Orders</h2>
+    <div id="ordersList"></div>
+    <p class="switch" onclick="backToDashboard()">Back to Dashboard</p>
+</section>
+
+<!-- TRACK MAP -->
+<section id="trackingScreen" style="display:none;">
+    <h2>Live Rider Tracking</h2>
+    <div id="trackMap" style="width:100%; height:350px; border-radius:10px; margin-bottom:12px;"></div>
+    <p class="switch" onclick="closeTrackMap()">Back</p>
+</section>
+
+<!-- PROFILE -->
+<section id="profileScreen" style="display:none;">
+    <h2>My Profile</h2>
+    <div class="profile-box">
+        <label>Full Name</label>
+        <input type="text" id="profileFullname" disabled>
+        <label>Phone</label>
+        <input type="text" id="profilePhone">
+        <label>Address</label>
+        <input type="text" id="profileAddress">
+        <label>Username</label>
+        <input type="text" id="profileUsername" disabled>
+        <label>Valid ID</label>
+        <img id="profileValidId" class="profile-img">
+        <label>Selfie</label>
+        <img id="profileSelfie" class="profile-img">
+        <button class="btn" onclick="saveProfile()">Save Changes</button>
+        <p class="switch" onclick="backToDashboard()">Back</p>
+    </div>
+</section>
+
+</main>
+</body>
+</html>

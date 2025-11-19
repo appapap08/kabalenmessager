@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KABALEN Delivery Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+    body {
+        font-family: 'Poppins', sans-serif;
+        background: linear-gradient(135deg, #ff7b00, #ff9500);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        overflow: hidden;
+    }
+    .container {
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(10px);
+        padding: 40px 30px;
+        border-radius: 20px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        text-align: center;
+        width: 90%;
+        max-width: 420px;
+        animation: fadeIn 1s ease-out;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    h1 {
+        font-size: 2.2em;
+        font-weight: 700;
+        color: #ff7b00;
+        margin-bottom: 5px;
+        letter-spacing: 1px;
+        text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+    }
+    h2 {
+        font-size: 1.2em;
+        color: #444;
+        margin-bottom: 20px;
+    }
+    .portal-btn {
+        width: 100%;
+        padding: 14px;
+        margin: 10px 0;
+        border: none;
+        border-radius: 10px;
+        background: #ff7b00;
+        color: white;
+        font-size: 1.05em;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+    .portal-btn:hover {
+        background: #ff9500;
+        transform: scale(1.03);
+    }
+    .portal-btn:active {
+        transform: scale(0.98);
+    }
+    .footer {
+        margin-top: 25px;
+        font-size: 0.9em;
+        color: #666;
+    }
+    .footer span {
+        color: #ff7b00;
+        font-weight: 600;
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>KABALEN</h1>
+    <h2>Welcome to Delivery App</h2>
+    <p style="color:#555;">Choose your portal to continue:</p>
+
+    <button class="portal-btn" onclick="goTo('client/index.html')">
+        🚚 Client App
+    </button>
+
+    <button class="portal-btn" onclick="goTo('rider/index.html')">
+        🏍️ Rider App
+    </button>
+
+    <div class="footer">
+        Powered by <span>KABALEN Delivery</span> © 2025
+    </div>
+</div>
+
+<script>
+function goTo(page) {
+    window.location.href = page;
+}
+</script>
+
+</body>
+</html>

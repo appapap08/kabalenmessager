@@ -1,0 +1,158 @@
+/* ---------------------------------------------------------
+   GLOBAL THEME — MATCH RIDER APP
+--------------------------------------------------------- */
+
+body {
+    font-family: "Poppins", sans-serif;
+    background: #ff7a00; /* Same orange background */
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    width: 95%;
+    max-width: 900px;
+    margin: auto;
+    padding-top: 20px;
+}
+
+/* ---------------------------------------------------------
+   WHITE PANEL BOXES — LIKE RIDER DASHBOARD
+--------------------------------------------------------- */
+
+#dashboard,
+#loginDiv {
+    background: white;
+    border-radius: 18px;
+    padding: 25px;
+    box-shadow: 0px 5px 15px rgba(0,0,0,0.15);
+}
+
+/* Center login box */
+#loginDiv {
+    max-width: 360px;
+    margin: 80px auto;
+}
+
+/* Titles */
+h2, h3 {
+    text-align: center;
+    font-weight: 700;
+    color: #ff7a00;
+    margin-bottom: 15px;
+}
+
+/* ---------------------------------------------------------
+   INPUT FIELDS
+--------------------------------------------------------- */
+
+input,
+select,
+textarea {
+    width: 100%;
+    padding: 12px;
+    margin: 6px 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    font-size: 15px;
+}
+
+/* Manual order notes */
+textarea {
+    height: 100px;
+    resize: vertical;
+}
+
+/* ---------------------------------------------------------
+   ORANGE BUTTONS — MATCH RIDER APP
+--------------------------------------------------------- */
+
+button {
+    width: 100%;
+    padding: 12px;
+    background: #ff7a00;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    cursor: pointer;
+    font-weight: 600;
+    margin-top: 8px;
+}
+
+button:hover {
+    background: #e56d00;
+}
+
+/* Small action buttons inside tables */
+.action-btn {
+    padding: 6px 10px;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    width: auto !important;
+    margin-top: 0;
+}
+
+.btn-danger {
+    background: #d32f2f;
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #b32525;
+}
+
+.btn-blue {
+    background: #1976d2;
+    color: white;
+}
+
+.btn-blue:hover {
+    background: #0f5ba8;
+}
+
+/* ---------------------------------------------------------
+   TABLES — CLEAN & MODERN INSIDE WHITE CARDS
+--------------------------------------------------------- */
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+th {
+    background: #ffe2c2;
+    color: #333;
+    padding: 12px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+td {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    font-size: 14px;
+}
+
+tr:hover {
+    background: #fdf3e6;
+}
+
+/* ---------------------------------------------------------
+   RESPONSIVE
+--------------------------------------------------------- */
+
+@media (max-width: 600px) {
+    button {
+        font-size: 14px;
+    }
+    table, th, td {
+        font-size: 12px;
+    }
+}

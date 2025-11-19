@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Delivery App - Admin</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+<!-- Only admin.css (NO inline CSS anymore) -->
+<link rel="stylesheet" href="admin.css">
+
+</head>
+<body>
+
+<div class="container">
+
+  <!-- LOGIN -->
+  <div id="loginDiv">
+    <h2>Admin Login</h2>
+
+    <input id="username" placeholder="Username" />
+    <input id="password" type="password" placeholder="Password" />
+    <button onclick="login()">Login</button>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="dashboard" style="display:none;">
+    <h2>Admin Dashboard</h2>
+    <button onclick="logout()">Logout</button>
+
+    <!-- ADD RIDER -->
+    <h3>Add Rider</h3>
+
+    <input id="riderName" placeholder="Name" />
+    <input id="riderPhone" placeholder="Phone" />
+    <input id="riderUsername" placeholder="Username" />
+    <input id="riderPassword" placeholder="Password" />
+    <button onclick="addRider()">Add Rider</button>
+
+    <!-- MANUAL ORDER -->
+    <h3>Manual Order</h3>
+
+    <input id="custName" placeholder="Customer Name" />
+    <input id="custPhone" placeholder="Customer Phone" />
+    <input id="pickup" placeholder="Pickup Location" />
+    <input id="dropoff" placeholder="Dropoff Location" />
+    <input id="distance" placeholder="Distance (km)" type="number" />
+    <input id="fee" placeholder="Delivery Fee (PHP)" type="number" />
+
+    <textarea id="orderNotes" placeholder="Notes / Special Instructions"></textarea>
+
+    <select id="assignRider">
+      <option value="">-- Optional: Assign Rider --</option>
+    </select>
+
+    <button onclick="createOrder()">Create Order</button>
+
+    <!-- RIDERS -->
+    <h3>Riders</h3>
+    <table id="ridersTable"></table>
+
+    <!-- INCOMING ORDERS -->
+    <h3>Incoming Orders</h3>
+    <table id="incomingOrdersTable"></table>
+
+    <!-- ORDER HISTORY -->
+    <h3>Order History</h3>
+    <table id="historyOrdersTable"></table>
+
+  </div>
+</div>
+
+<!-- JS -->
+<script src="admin.js" defer></script>
+
+</body>
+</html>

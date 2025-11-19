@@ -1,0 +1,251 @@
+/* ============================================================
+   GLOBAL STYLES — FULL RESPONSIVE
+============================================================ */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, #ff7b00, #ff9500);
+  min-height: 100vh;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Header */
+.header h1 {
+  text-align: center;
+  color: white;
+  font-size: clamp(1.6rem, 4vw, 2.3rem);
+  margin-bottom: 20px;
+  font-weight: 700;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+}
+
+/* Main container */
+.content {
+  width: 100%;
+  max-width: 480px;
+  background: white;
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+}
+
+/* ============================================================
+   GENERIC ELEMENTS
+============================================================ */
+
+h2 {
+  font-size: clamp(1.3rem, 4vw, 1.8rem);
+  color: #ff7b00;
+  margin-bottom: 15px;
+  text-align: center;
+  font-weight: 700;
+}
+
+input, select {
+  width: 100%;
+  padding: 14px;
+  margin: 10px 0;
+  border: 1px solid #ffbb6a;
+  border-radius: 10px;
+  font-size: clamp(.9rem, 3vw, 1rem);
+}
+
+/* Buttons */
+.btn {
+  width: 100%;
+  padding: 14px;
+  background: #ff7b00;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  margin: 10px 0;
+  font-size: clamp(1rem, 3vw, 1.15rem);
+  font-weight: 600;
+  transition: 0.2s;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: #ff9500;
+  transform: scale(1.03);
+}
+
+.logout {
+  background: #d9534f;
+}
+
+.balance {
+  font-size: clamp(1rem, 3vw, 1.2rem);
+  font-weight: 600;
+  margin: 10px 0;
+  color: #333;
+}
+
+.loading {
+  color: #ff7b00;
+  text-align: center;
+  margin-top: 10px;
+}
+
+/* ============================================================
+   ORDER CARDS
+============================================================ */
+.order-card {
+  background: #fff3e0;
+  border-left: 6px solid #ff7b00;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  font-size: clamp(.9rem, 3vw, 1rem);
+  line-height: 1.4;
+  word-break: break-word;
+  animation: fadeIn 0.4s ease-out;
+}
+
+/* Fade-in animation for cards */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================================
+   QUEUE CARD UI
+============================================================ */
+.queue-card {
+  background: #fff8e6;
+  border: 2px solid #ffae42;
+  padding: 18px;
+  border-radius: 16px;
+  margin-top: 20px;
+  animation: bounceIn 0.35s ease-out;
+}
+
+@keyframes bounceIn {
+  0% { transform: scale(0.9); opacity: 0; }
+  70% { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(1); }
+}
+
+.queue-item {
+  padding: 6px 0;
+  font-size: clamp(.9rem, 3vw, 1rem);
+}
+
+.queue-item.me {
+  font-weight: 700;
+  color: #ff7b00;
+}
+
+/* ============================================================
+   POPUP — CENTERED, ANIMATED, RESPONSIVE
+============================================================ */
+.order-popup {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.75);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  padding: 15px;
+  z-index: 9999;
+  animation: popupFade 0.3s ease-out;
+}
+
+@keyframes popupFade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.order-popup-card {
+  background: white;
+  width: 100%;
+  max-width: 420px;
+  padding: 25px;
+  border-radius: 18px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.35);
+  text-align: center;
+  animation: popupScale 0.25s ease-out;
+}
+
+@keyframes popupScale {
+  from { transform: scale(0.85); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+.order-popup-card h3 {
+  font-size: clamp(1.3rem, 4vw, 1.7rem);
+  margin-bottom: 15px;
+  color: #ff7b00;
+  font-weight: 700;
+}
+
+.order-popup-card p {
+  margin-bottom: 10px;
+  font-size: clamp(.9rem, 3vw, 1rem);
+  word-break: break-word;
+}
+
+/* ============================================================
+   MEDIA QUERIES FOR FULL RESPONSIVENESS
+============================================================ */
+
+/* ► Very small phones */
+@media (max-width: 350px) {
+  .content {
+    padding: 15px;
+  }
+  .btn, input, select {
+    padding: 12px;
+    font-size: .9rem;
+  }
+}
+
+/* ► Tablets */
+@media (min-width: 600px) and (max-width: 900px) {
+  .content {
+    max-width: 600px;
+    padding: 32px;
+  }
+  .order-popup-card {
+    max-width: 480px;
+  }
+}
+
+/* ► Desktop */
+@media (min-width: 900px) {
+  body {
+    padding-top: 40px;
+  }
+  .content {
+    max-width: 600px;
+  }
+  .order-popup-card {
+    max-width: 500px;
+  }
+}
+.chat-box {
+    height: 350px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    padding: 8px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    background: white;
+}
+
+.chat-line {
+    padding: 6px;
+    margin: 5px 0;
+    border-radius: 6px;
+    background: #e6e6e6;
+}

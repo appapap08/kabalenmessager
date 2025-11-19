@@ -1,0 +1,73 @@
+{
+  "riders": [
+    {
+      "id": 1,
+      "name": "erwin",
+      "phone": "09765176502",
+      "username": "appapap08",
+      "password": "123",
+      "credit": 75,
+      "autoPassTime": 1763465268774
+    }
+  ],
+  "clients": [
+    {
+      "id": 1,
+      "fullname": "erwin silvestre",
+      "address": "asdfskfjkj",
+      "phone": "1234654987",
+      "username": "appapap08",
+      "password": "123",
+      "validId": "validId_1763471838849.jpg",
+      "selfie": "selfie_1763471838849.jpg"
+    },
+    {
+      "id": 2,
+      "fullname": "adf ",
+      "address": "asdf",
+      "phone": "1234654",
+      "username": "appapap",
+      "password": "123",
+      "validId": "validId_1763472138072.jpg",
+      "selfie": "selfie_1763472138073.jpg"
+    }
+  ],
+  "orders": [
+    {
+      "id": 1,
+      "client_id": null,
+      "customer_name": "jasha",
+      "customer_phone": "08326547987",
+      "pickup": "san isidro",
+      "dropoff": "Santa Cruz (Poblacion), Santo Tomas, San Nicolas, San Luis, Pampanga, Central Luzon, Philippines",
+      "distance": 10,
+      "fee": 200,
+      "status": "Delivered",
+      "rider_id": 1,
+      "pickup_image": "image_1763467967022.jpg",
+      "dropoff_image": "image_1763468015688.jpg",
+      "type": "food",
+      "assigned_rider_id": null,
+      "assignment_expires": null
+    },
+    {
+      "id": 6,
+      "client_id": 2,
+      "pickup": "Jollibee, Baliuag Flyover, Erma Subdivision, Piel, Baliwag, Bulacan, Central Luzon, 3006, Philippines",
+      "dropoff": "San Luis, Pampanga, Central Luzon, Philippines",
+      "distance": 14.2,
+      "fee": 284,
+      "type": "food",
+      "notes": "",
+      "status": "Accepted",
+      "rider_id": 1,
+      "pickup_image": null,
+      "dropoff_image": null,
+      "assigned_rider_id": null,
+      "assignment_expires": null
+    }
+  ],
+  "nextRiderId": 2,
+  "nextOrderId": 7,
+  "nextClientId": 3
+}

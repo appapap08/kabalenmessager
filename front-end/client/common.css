@@ -1,0 +1,232 @@
+/* ============================================================
+   GLOBAL STYLES — SHARED BY ALL CLIENT SCREENS
+   Matches Rider App Theme (Orange Gradient)
+============================================================ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, #ff7b00, #ff9500);
+  min-height: 100vh;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* =========================== */
+/*             HEADER          */
+/* =========================== */
+.header h1 {
+  text-align: center;
+  color: white;
+  font-size: clamp(1.6rem, 4vw, 2.3rem);
+  margin-bottom: 20px;
+  font-weight: 700;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+}
+
+/* =========================== */
+/*      MAIN CONTENT WRAP      */
+/* =========================== */
+.content {
+  width: 100%;
+  max-width: 480px;
+  background: white;
+  padding: 22px;
+  border-radius: 18px;
+  box-shadow: 0 6px 22px rgba(0,0,0,0.25);
+  margin-bottom: 40px;
+}
+
+/* =========================== */
+/*        TITLES & TEXT        */
+/* =========================== */
+
+h2 {
+  font-size: clamp(1.4rem, 4vw, 1.9rem);
+  color: #ff7b00;
+  margin-bottom: 18px;
+  text-align: center;
+  font-weight: 700;
+}
+
+p.switch {
+  text-align: center;
+  margin-top: 12px;
+  color: #ff7b00;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+p.switch:hover {
+  text-decoration: underline;
+}
+
+/* =========================== */
+/*         INPUT FIELDS        */
+/* =========================== */
+
+input, select, textarea {
+  width: 100%;
+  padding: 14px;
+  margin: 10px 0;
+  border: 1px solid #ffbb6a;
+  border-radius: 10px;
+  font-size: clamp(.9rem, 3vw, 1rem);
+  background: #fff8f0;
+}
+
+textarea {
+  resize: vertical;
+  height: 90px;
+}
+
+/* =========================== */
+/*           BUTTONS           */
+/* =========================== */
+
+.btn {
+  width: 100%;
+  padding: 14px;
+  background: #ff7b00;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  margin: 10px 0;
+  font-size: clamp(1rem, 3vw, 1.15rem);
+  font-weight: 600;
+  transition: 0.2s ease;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: #ff9500;
+  transform: scale(1.03);
+}
+
+.logout {
+  background: #d9534f;
+}
+
+.logout:hover {
+  background: #c84342;
+}
+
+/* =========================== */
+/*           LOADING           */
+/* =========================== */
+.loading {
+  color: #ff7b00;
+  text-align: center;
+  margin-top: 10px;
+  font-weight: 500;
+}
+
+/* =========================== */
+/*          PROFILE IMG        */
+/* =========================== */
+
+.profile-img {
+  width: 100%;
+  border-radius: 12px;
+  margin-top: 8px;
+  border: 1px solid #ccc;
+}
+
+/* PROFILE CONTAINER */
+.profile-box {
+  background: #fff3e0;
+  padding: 16px;
+  border-radius: 14px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+}
+
+/* =========================== */
+/*      ORDER CARD BASE        */
+/* =========================== */
+
+.order-card {
+  background: #fff3e0;
+  border-left: 6px solid #ff7b00;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  font-size: clamp(.9rem, 3vw, 1rem);
+  line-height: 1.4;
+  word-break: break-word;
+  animation: fadeIn 0.4s ease-out;
+}
+
+.order-title {
+  font-weight: 700;
+  color: #ff6a00;
+  margin-bottom: 6px;
+}
+
+.order-info {
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+/* =========================== */
+/*           STATUS            */
+/* =========================== */
+.status {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 8px;
+}
+
+.status-pending { background: #b3b3b3; }
+.status-accepted { background: #007bff; }
+.status-picked { background: #ff9500; }
+.status-delivered { background: #28a745; }
+
+/* =========================== */
+/*          ANIMATIONS         */
+/* =========================== */
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* =========================== */
+/*       RESPONSIVE TUNING     */
+/* =========================== */
+
+@media (max-width: 350px) {
+  .content {
+    padding: 16px;
+  }
+  .btn, input, textarea {
+    padding: 12px;
+  }
+}
+
+@media (min-width: 600px) and (max-width: 900px) {
+  .content {
+    max-width: 600px;
+    padding: 30px;
+  }
+}
+
+@media (min-width: 900px) {
+  body {
+    padding-top: 40px;
+  }
+  .content {
+    max-width: 600px;
+  }
+}
